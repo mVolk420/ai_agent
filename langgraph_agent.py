@@ -6,7 +6,7 @@ from langchain_core.tools import tool
 from langchain_core.utils.function_calling import convert_to_openai_function  # ✅ NEU
 
 from tools.file_tools import read_file, find_file
-from config import OPENAI_API_KEY
+from config import OPENAI_API_KEY, DEBUG
 
 # Zustandstyp für den Graph
 AgentState = dict
@@ -31,13 +31,15 @@ def run_llm(state: dict) -> dict:
     msg = HumanMessage(content=user_msg)
     response = llm.invoke([msg])
 
-    print("\n--- DEBUG: Tool Calls ---")
+    if DEBUG:
+        print("\n--- DEBUG: Tool Calls ---")
     if hasattr(response, "tool_calls") and response.tool_calls:
         tool_outputs = []
         for tool_call in response.tool_calls:
             name = tool_call.get("name")
             args = tool_call.get("args")
-            print(f"→ Tool-Call erkannt: {name} | args: {args}")
+            if DEBUG:
+                print(f"→ Tool-Call erkannt: {name} | args: {args}")
 
             tool = tool_lookup.get(name)
             if tool:
@@ -51,7 +53,8 @@ def run_llm(state: dict) -> dict:
 
         return {"user_input": user_msg, "response": "\n".join(tool_outputs)}
     else:
-        print("→ Keine Tool Calls erkannt")
+        if DEBUG:
+            print("→ Keine Tool Calls erkannt")
         return {"user_input": user_msg, "response": response.content}
 
 # 🧠 LangGraph-Definition
