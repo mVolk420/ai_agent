@@ -1,20 +1,14 @@
-from dotenv import load_dotenv
-import os
+from langgraph_agent import graph_executor
 
-from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI  # <- NEU
+def main():
+    print("LangGraph-Agent gestartet. Tippe 'exit' zum Beenden.")
+    while True:
+        user_input = input("Du: ")
+        if user_input.lower() in ["exit", "quit"]:
+            break
+        state = {"user_input": user_input}
+        result = graph_executor.invoke(state)
+        print("KI:", result["response"])
 
-# .env laden
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-
-# Chat-Modell initialisieren
-chat = ChatOpenAI(api_key=api_key, temperature=0.7)
-
-while True:
-    user_input = input("Du: ")
-    if user_input.lower() in ["exit", "quit"]:
-        break
-
-    response = chat.invoke([HumanMessage(content=user_input)])  # <- NEU
-    print("KI:", response.content)
+if __name__ == "__main__":
+    main()
